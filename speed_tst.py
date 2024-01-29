@@ -8,6 +8,11 @@ from time import sleep
 import random
 import concurrent.futures
 from telegram import Bot
+import colorama
+from colorama import Fore
+from telegram.ext import Updater, CallbackContext
+
+colorama.init(autoreset=True)
 
 created = 0
 failed = 0
@@ -16,39 +21,61 @@ L = '\033[1;33m'
 C = "\033[1;97m"
 B = '\033[2;36m'
 Y = '\033[1;34m'
-C = "\033[1;97m"
 X = '\037'
 G = '\033[1;32m'
 R = '\033[1;31m'
 
-# توكن البوت الجديد
-bot_token = '6749189026:AAFJC6MbTL3uPfvzB8yHkeYw3rqlb5EDljY' 
+decoration = f'''
+▄▀▀ █▀▄ █▀▀ █▀▀ █▀▄ 
+░▀▄ █░█ █▀▀ █▀▀ █░█ 
+▀▀░ █▀░ ▀▀▀ ▀▀▀ ▀▀░ 
+'''
 
-# ايدي التيليجرام الجديد
-id = '5705487207' 
+print(Y + 'مرحبًا بك في أداة إنشاء حسابات Safeum')
+print(Y + 'أرسل لي رسالة على تليجرام: @l_s_i_i')
+print(C + "∞" * 60)
 
-bot = Bot(token=bot_token)
+token = "6749189026:AAHa31Ocptu729wfLnWO6LNTUSw0Z7mDtrQ"
+id = "5705487207"
 
-import time 
-print("مرحبا في أداة صنع حسابات تطبيق safeum")
-print("ستبدأ الأداة في إنشاء الحسابات بعد 5 ثواني ")
+os.system('clear')
+
+bot = Bot(token=token)
+updater = Updater(token=token)
+dispatcher = updater.dispatcher
+
+welcome_message = f'''
+{Fore.GREEN}========================================
+{Fore.GREEN}مرحبًا بك في أداة إنشاء حسابات Safeum!
+{Fore.GREEN}========================================
+{Fore.CYAN}أنشئ حسابات مجانية لتطبيق Safeum.
+{Fore.CYAN}سيتم إرسال الحسابات التي تم إنشاؤها إلى تليجرام الخاص بك.
+{Fore.CYAN}========================================
+{decoration}
+'''
+
+print(welcome_message)
+
+import time
+
 time.sleep(5)
 
 ch = 'qwertyuioplkjhgfdsazxcvbnm1234567890'
 
-def create():
+def create(context: CallbackContext):
     global created
     global failed
     user = str(random.choice('qwertyuioplkjhgfdsazxcvbnm')[0]) + str(''.join(random.choice(ch) for i in range(7)))
+    password = 'hhhh'  # كلمة المرور
 
     tlg = f'''
-𝐍𝐄𝐖 𝐀𝐂𝐂𝐎𝐔𝐍𝐓 𝐅𝐎𝐑 𝐒𝐀𝐅𝐄𝐔𝐌
-⋘─────━𓆩𝑥iint𝘦𓆪‏━─────⋙
+⋘─────━𓆩ᔆ ᴾ ᴱ ᴱ ᴰ ™ 𝓼𓆪‏━─────⋙
 ˛ U𝗌𝖾𝗋  : {user}
-˛ 𝖯𝖺𝗌𝗌𝗐𝗈𝗋𝖽 : hhhh
-⋘─────━𓁥iint������������━─────⋙
-BY : @eiint | @yybek
-   '''
+˛ 𝖯𝖺𝗌𝗌𝗐𝗈𝗋𝖽 : {password}
+⋘─────━𓁥@l_s_I_I������������━─────⋙
+
+BY : @l_s_i_i | @speed_24_1
+'''
 
     headers = {
         "app": "com.safeum.android",
@@ -86,7 +113,7 @@ BY : @eiint | @yybek
         "nickname": "hvtctchnjvfxfx",
         "os": "AND",
         "deviceuid": "c72d110c1ae40d50",
-        "devicepushuid": "*dxT6B6Solm0:APA91bHqL8wxzlyKHckKxMDz66HmUqmxCPAVKBDrs8KcxCAjwdpxIPTCfRmeEw8Jks_q13vOSFsOVjCVhb-CkkKmTUsaiS7YOYHQS_pbH1g6P4N-jlnRzySQwGvqMP1gxRVksHiOXKKP",
+        "devicepushuid": "*dxT6B6Solm0:APA91bHqL8wxzlyKHckKxMDz66HmUqmxCPAVKBDrs8KcxCAjwdpxIPTCfRmeEw8Jks_q13vOSFsOVjCVhb-CqqKmTUsaiS7YOYHQS_pbH1g6P4N-jlnRzySQwGvqMP1gxRVksHiOXKKP",
         "osversion": "and_11.0.0",
         "id": "1734805704"
     }
@@ -100,22 +127,25 @@ BY : @eiint | @yybek
         failed += 1
     elif '"status":"Success"' in str(decoded_data):
         created += 1
-        bot.send_message(chat_id=id, text=tlg)
+        context.bot.send_message(chat_id=id, text=tlg)
+        
+        with open('successful_accounts.txt', 'a', encoding='utf-8') as file:
+            file.write(f"{tlg}\n")
     elif '"comment":"Retry"' in str(decoded_data):
         failed += 1
     else:
         print(decoded_data)
 
-# تحديث الكود لاستخدام multithreading
-executor = concurrent.futures.ThreadPoolExecutor(max_workers=800)
+executor = concurrent.futures.ThreadPoolExecutor(max_workers=600)
 
 while True:
-    executor.submit(create)
+    # Use the updater's context to pass the Updater instance
+    executor.submit(create, updater)
     os.system('clear')
-    print(C + "Make free account for safeUm app ")
-    print(L + "∞"*60)
-    print(G + 'Created : ' + str(created))
-    print(R + 'Failed : ' + str(failed))
-    print(L + "∞"*60)
-    print(C + "My account in telegram : @yybek")
-    print(C + "My channel in telegram : @eiint")
+    print(C + "أنشئ حسابًا مجانيًا لتطبيق Safeum")
+    print(L + "\u221e" * 60)
+    print(G + ' ناجحة : ' + str(created))
+    print(R + ' عدد المحاولات : ' + str(failed))
+    print(L + "\u221e" * 60)
+    print(C + f"حسابي في تليجرام: @l_s_i_i | قناتي في تليجرام: @l_s_i_i")
+ 
